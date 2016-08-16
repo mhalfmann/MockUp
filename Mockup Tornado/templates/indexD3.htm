@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+	.axis text {
+	  font: 10px sans-serif;
+	}
+
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
+		body, html {
+      font-family: sans-serif;
+	  
+		-ms-content-zooming: none;
+    }
+
+</style>
+<body>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<!-- <script charset="utf-8" src="static/Javascript/d3.js"></script> -->
+<div id="timeline"></div>
+<script>
+var w = 1200,
+    h = 200,
+    parseDate = d3.time.format("%Y-%m-%d").parse;
+
+flights = ["1988-01-01", "1988-01-02", "1988-01-03", 
+           "1988-01-04", "1988-01-05", "1988-01-06", 
+           "1988-01-07", "1988-01-08", "1988-01-09", 
+           "1988-01-10", "1988-01-11", "1988-01-12", 
+           "1988-01-13", "1988-01-14", "1988-01-15", 
+           "1988-01-16", "1988-01-17", "1988-01-18", 
+           "1988-01-19", "1988-01-20", "1988-01-21", 
+           "1988-01-22", "1988-01-23", "1988-01-24", 
+           "1988-01-25", "1988-01-26", "1988-01-27", 
+           "1988-01-28", "1988-01-29", "1988-01-30", 
+           "1988-01-31", "1988-02-01", "1988-02-02", 
+           "1988-02-03", "1988-02-04", "1988-02-05", 
+           "1988-02-06", "1988-02-07", "1988-02-08", 
+           "1988-02-09", "1988-02-10", "1988-02-11", 
+           "1988-02-12", "1988-02-13", "1988-02-14", 
+           "1988-02-15", "1988-02-16", "1988-02-17", 
+           "1988-02-18", "1988-02-19", "1988-02-20"].map(function(d){return parseDate(d)});
+
+
+
+svg = d3.select("#timeline")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+
+
+var scale = d3.time.scale()
+                .domain([flights[0], flights[flights.length -1]])
+                .range([10, w-110]);
+
+
+var xaxis = d3.svg.axis().scale(scale)
+                .orient("bottom");
+
+
+var zoom = d3.behavior.zoom()
+                    .on("zoom", function(){
+                        svg.select("g").call(xaxis).selectAll("text").style("font-size", "10px");
+                        update_events();
+						console.log(d3.event.sourceEvent.type);
+                        //svg.selectAll(".item").attr("transform", "translate(" + d3.event.translate[0]+", 0)scale(" + d3.event.scale+", 1)");
+                    }).x(scale);
+
+
+var rect = svg.append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", w-100)
+                .attr("height", h)
+                .attr("opacity", 0)
+                .call(zoom);
+
+svg.append("g")
+    .attr("class", "xaxis")
+    .call(xaxis)
+    .selectAll("text")
+        .style("font-size", "10px");
+
+svg.append("line")
+    .attr("x1", w/2)
+    .attr("x2", w/2)
+    .attr("y1", 0)
+    .attr("y2", h)
+    .style("stroke", "rgb(6,120,255)");
+
+
+function draw_events(dates){
+        
+    var events = svg.selectAll("rect.item").data(dates);
+
+    events.enter()
+            .append("rect")
+                .attr("class", "item")
+                .attr("x", function(d){return scale(d);})
+                .attr("y", function(){ return Math.random() * 100;})
+                .attr("width", 10)
+                .attr("height", 10)
+                .style("fill", "blue");
+
+    events.exit()
+            .remove();
+}
+
+function update_events(){
+    return svg.selectAll("rect.item")
+        .attr("x", function(d){return scale(d);})    
+}
+
+draw_events(flights)
+
+</script>

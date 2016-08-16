@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset=utf-8 http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Timeline | Basic demo</title>
+
+  <style type="text/css">
+    body, html {
+      font-family: sans-serif;
+	  
+		-ms-content-zooming: none;
+    }
+  </style>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.css" rel="stylesheet" type="text/css" />
+	
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3-tip/0.6.7/d3-tip.min.js"></script>
+	
+	<script src="static/JavaScript/patientHistory.js"></script>
+</head>
+<body>
+<div id="visualization"></div>
+<!-- <a href="static/Img/histInfo.png">Img File Current Folder</a>
+<a href="static/html/genes.htm">HTM File Current Folder</a> -->
+<script type="text/javascript">
+  // DOM element where the Timeline will be attached
+	var container = document.getElementById('visualization');
+  // create a couple of HTML items in various ways
+
+	var svgContainer = d3.select("body").append("svg")
+		.attr("width",screen.width)
+        .attr("height",screen.height)
+		.style("border", "10px solid pink")
+		.attr("id","svgContainer");
+	console.log(infos[0][0]);
+ /* var item1 = document.createElement('div');
+  item1.appendChild(document.createTextNode('item 1'));
+
+  var item2 = document.createElement('div');
+  item2.innerHTML = '<span>item 2</span>';
+
+  var item3 = document.createElement('div');
+  var span3 = document.createElement('span');
+  span3.className = 'large';
+  span3.appendChild(document.createTextNode('item 3'));
+  item3.appendChild(span3);
+
+  var item4 = 'item <span class="large">4</span>';
+
+  var item5 = document.createElement('div');
+  item5.appendChild(document.createTextNode('item 5'));
+  item5.appendChild(document.createElement('br'));
+  var img5 = document.createElement('img');
+  img5.src = 'img/attachment-icon.png';
+  img5.style.width = '48px';
+  img5.style.height = '48px';
+  item5.appendChild(img5);
+
+  var item6 = 'item6<br><img src="../resources/img/comments-icon.png" style="width: 48px; height: 48px;">';*/
+  
+  var item1 = '<br><a href="'+infos[0][2]+'"target="_blank">'+infos[0][1]+'</a>'+'<br><a href="'+infos[0][3]+'"target="_blank">"Info"</a>';
+  var item2 = '<br><a href="'+infos[1][2]+'" target="_blank">'+infos[1][1]+'</a>';
+  var item3 = '<br><a href="'+infos[2][2]+'" target="_blank">'+infos[2][1]+'</a>';
+
+  // create data and a Timeline
+  var container = document.getElementById('visualization');
+  var items = new vis.DataSet([
+    {id: 1, content: item1, start: infos[0][0]},
+    {id: 2, content: item2, start: infos[1][0]},
+    {id: 3, content: item3, start: infos[2][0]}
+  ]);
+
+  // Configuration for the Timeline
+    var options = {
+    height: '200px',
+    min: new Date(2002, 0, 1),                // lower limit of visible range
+    max: new Date(2016, 6, 11),                // upper limit of visible range
+  };
+
+  // Create a Timeline
+  var timeline = new vis.Timeline(container, items, options);
+</script>
+</body>
+</html>

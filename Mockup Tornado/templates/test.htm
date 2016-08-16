@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Zoom + Pan</title>
+<div id="con">
+    <div id="zoomable"></div>
+</div>
+<div id="output">MSGestureChange event.scale</div>
+<style>
+
+body {
+  position: relative;
+  width: 960px;
+ -ms-content-zooming: none;
+}
+#zoomable {
+    display: inline-block;
+    width: 200px;
+    height: 200px;
+    background-color: #ccc;
+    /* Block areas from being selected */
+    -ms-user-select: none;
+    /* Prevent native gesture behavior */
+    -ms-touch-action: none;
+    -ms-transform-origin: 50%;
+}
+</style>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+	element = document.getElementById("zoomable");
+	output = document.getElementById("output");
+	gesture = new MSGesture();
+	scale = 1;
+	gesture.target = element;
+
+	element.addEventListener("MSGestureChange", change, false);
+	element.addEventListener("MSPointerDown", pointerDownChange, false);
+
+	/*element.addEventListener("pointerdown", function(e) {
+		info=e.width;
+		gesture.addPointer(e.pointerId);	
+		console.log(e.screenX);		
+	}, false);*/
+//element.addEventListener("MSPointerDown", change, false);
+
+function pointerDownChange(event){
+		info=event.width;
+		gesture.addPointer(event.pointerId);	
+}
+
+function change(event) {
+    var eventScale = 0;
+	console.log(event.type);
+    if (event.type === 'MSPointerDown') {
+        gesture.addPointer(event.pointerId);
+        return;
+    }
+    eventScale = event.scale;
+    if (scale >= 0.5) {
+        changeScale(eventScale);
+    } else {
+        scale = 0.5;
+    }
+    if (scale <= 2) {
+        changeScale(eventScale);
+    } else {
+        scale = 2;
+    }
+    event.target.style.msTransform = "scale(" + scale + ")";
+    output.innerHTML = event.type + ' event.scale ' + event.scale;
+}
+
+function changeScale(eventScale) {
+    var ratio = 2.5,
+        delta = 1 - eventScale;
+    scale -= delta === 0 ? 0 : delta / ratio;
+}
+</script>

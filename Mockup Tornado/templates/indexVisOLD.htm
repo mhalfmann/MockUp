@@ -1,0 +1,451 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset=utf-8 http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Timeline | Basic demo</title>
+
+	<!-- <script src="static/javascript/vis/dist/vis.min.js"></script> -->
+<!-- 	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script> -->
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"></script>
+	<link  href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.css" rel="stylesheet" type="text/css" />
+	
+<!-- 	<script src="static/javascript/vis/dist/vis.js"></script>
+	<link href="static/javascript/vis/dist/vis.css" rel="stylesheet" type="text/css" />	 -->
+	
+	<script src="static/JavaScript/patientHistory.js"></script>
+
+  <style type="text/css">
+    body, html {
+		font-family: sans-serif;
+		margin: 0;
+		padding: 0;
+	  
+		-ms-content-zooming: none;
+		-ms-touch-action: none;
+    }
+	body {
+      <!-- font-family:  purisa, 'comic sans', cursive; -->
+    }
+	#visualization{	
+		position: static;
+<!-- 		width: screen.width;
+		height: screen.height; -->
+		border: 1px solid #A9E2F3;
+		background: #6E6E6E;
+		z-index: 1;
+	}
+	
+	#mainPage{	
+		position: static;
+<!-- 		width: screen.width;
+		height: screen.height; -->
+		border: 1px solid red;
+		background: #A4A4A4;
+		z-index: 1;
+	}
+	
+	#canvas{
+		position:absolute;
+		top:0;
+		left:0;
+		z-index:100;
+		border: 1px solid green;
+		overflow:visible;
+		pointer-events:none;
+		background:none !important;
+<!-- 		width: 1920px;
+		height: 1080px; -->
+
+<!-- 	  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	  filter: alpha(opacity=50);
+	  -moz-opacity:0.5;
+	  -khtml-opacity: 0.5;
+	  opacity: 0.5; -->
+	}
+	
+	#image{	
+		position: static;
+		z-index: 1;		
+		border: 2px solid #3104B4;
+	}
+	
+	#text{	
+		position: static;
+		z-index: 1;	
+		border: 2px solid #3104B4;
+		overflow:scroll;
+	}
+	#timeLine{	
+		position: static;
+		border: 1px solid #A9E2F3;
+		background: #6E6E6E;
+		z-index: 1;
+	}
+
+    .vis-timeline {
+      border: 2px solid darkblue;
+      <!-- font-family:  purisa, 'comic sans', cursive; -->
+      font-size: 12pt;
+      background: white;
+    }
+	.vis-time-axis.vis-foreground{
+      background: #A9E2F3;
+	}
+    .vis-item {
+      border-color: darkblue;
+      background-color: #CEF6F5;
+      font-size: 10pt;
+      color: purple;
+      box-shadow: 5px 5px 20px rgba(128,128,128, 0.5);
+    }
+
+    .vis-item,
+    .vis-item.vis-line {
+      border-width: 3px;
+    }
+
+    .vis-item.vis-dot {
+      border-width: 10px;
+      border-radius: 10px;
+    }
+
+    .vis-item-content{
+		color: darkblue;
+		font-weight: bold;
+    }
+    .vis-item.vis-selected {
+      border-color: #FE9A2E;
+      background-color: #F5DA81;
+    }
+
+    .vis-time-axis .vis-text {
+      color: darkblue;
+      padding-top: 10px;
+      padding-left: 10px;
+    }
+
+    .vis-time-axis .vis-text.vis-major {
+		font-weight: bold;
+    }
+
+    .vis-time-axis .vis-grid.vis-minor {
+      border-width: 2px;
+      border-color: #0431B4;
+    }
+
+    .vis-time-axis .vis-grid.vis-major {
+      border-width: 5px;
+      border-color: #0431B4;
+    }
+	a:link   {
+		color:darkblue; 
+		background-color:transparent; 
+		text-decoration:none
+	}
+	a:hover   {
+		color:darkblue; 
+		background-color:transparent; 
+		text-decoration:underline
+	}
+	a:visited   {
+		color:darkblue; 
+		background-color:transparent; 
+		text-decoration:none
+	}
+	a:active   {
+		color:darkblue; 
+		background-color:transparent; 
+		text-decoration:none
+	}
+  </style>
+</head>
+<body>
+<div id="mainPage">
+<!-- 	<div class="floatTL">
+		<svg id="svgContainer"xmlns="http://www.w3.org/2000/svg" version="1.1"
+		   width="1920px" height="1080px">
+	  </svg>  
+	</div>
+	<canvas id="canvas" width="1920" height="1080"></canvas> -->
+	<div id="visualization">
+		<iframe name="imgFrame" id="image">
+		</iframe>
+		<iframe name="texte" id="text">
+		</iframe>
+<!-- 		<div id="text" style="overflow:scroll">
+		</div> -->
+		<p id="output">Output</p>
+	</div>
+	<div id="timeLine"></div>
+</div>
+<!-- <a href="static/Img/histInfo.png">Img File Current Folder</a>
+<a href="static/html/genes.htm">HTM File Current Folder</a> -->
+<script type="text/javascript">
+  // DOM element where the Timeline will be attached
+	var time = document.getElementById('timeLine');
+	var container = document.getElementById('visualization');
+	var imgFrame = document.getElementById('image');
+	var output = document.getElementById('output');
+	var textFrame=document.getElementById('text');
+	var page=document.getElementById('mainPage');
+	
+	var evCache = new Array();	
+
+	time.addEventListener('pointerdown',pointerdown_handler);
+	time.addEventListener('pointermove',pointermove_handler);
+	time.addEventListener('pointerup',pointerup_handler);
+	/*time.addEventListener('pointercancel',pointerup_handler);
+	time.addEventListener('pointerout',pointerup_handler);
+	time.addEventListener('pointerleave',pointerup_handler);*/
+	
+	function pointerdown_handler() {
+		evCache.push(event);
+		var options = {
+			zoomable: true,         // upper limit of visible range
+		};
+		timeline.setOptions(options);
+	}
+	function pointermove_handler() {
+
+		 // Find this event in the cache and update its record with this event
+		 for (var i = 0; i < evCache.length; i++) {
+		   if (event.pointerId == evCache[i].pointerId) {
+			  evCache[i] = event;
+		   break;
+		   }
+		 }
+
+	 // If two pointers are down, check for pinch gestures
+		if (evCache.length == 2) {
+		   // Calculate the distance between the two pointers
+		   var curDiff = Math.abs(evCache[0].clientX - evCache[1].clientX);
+			if(curDiff<300){
+				var options = {
+					zoomable: false,         // upper limit of visible range
+				};
+				timeline.setOptions(options);
+			}
+			if(curDiff>=300){
+				var options = {
+					zoomable: true,         // upper limit of visible range
+				};
+				timeline.setOptions(options);
+			}
+		}
+	}
+	function pointerup_handler() {
+	  remove_event(event);	 
+	  if (evCache.length < 2) prevDiff = -1;
+	}
+	function remove_event(ev) {
+	 // Remove this event from the target's cache
+	 for (var i = 0; i < evCache.length; i++) {
+	   if (evCache[i].pointerId == ev.pointerId) {
+		 evCache.splice(i, 1);
+		 break;
+	   }
+	 }
+	}
+	
+	document.body.style.overflow = 'hidden';
+	
+	page.style.width=screen.width*0.99+"px";
+	page.style.height=screen.height+"px";
+	
+	container.style.width=page.clientWidth+"px";
+	container.style.height=page.clientHeight*0.7+"px";
+	
+	time.style.width=page.clientWidth+"px";
+	time.style.height=page.clientHeight*0.3+"px";
+	
+	imgFrame.style.width=container.clientWidth*0.4+"px";
+	imgFrame.style.height=container.clientHeight*0.9+"px";
+	
+	textFrame.style.width=container.clientWidth*0.5+"px";
+	textFrame.style.height=container.clientHeight*0.2+"px";
+
+	console.log(textFrame.clientWidth+"x"+screen.height);
+	
+  var item1 = '<br><a href="'+infos[0][2]+'"target="_blank">'+infos[0][1]+'</a>'+'<br><a href="'+infos[0][3]+'"target="_blank">"Info"</a>';
+  var item2 = '<br><a href="'+infos[1][2]+'" target="_blank">'+infos[1][1]+'</a>';
+  var item3 = '<br><a href="'+infos[2][2]+'" target="_blank">'+infos[2][1]+'</a>';
+ // var item3 = '<div id="i3">Hello World</div>';
+  
+	
+  var items = new vis.DataSet([
+   /* {id: 0, content: "one", start: infos[0][0]},
+    {id: 1, content: "two", start: infos[1][0]},
+    {id: 2, content: "three", start: infos[2][0]}*/
+  ]);
+  iframes = Array(infos.length);
+	for (i = 0; i < infos.length; i++) { 
+		//console.log(infos[i][0]);
+		
+		var div = document.createElement("div");
+		div.id="div_"+i;
+		document.body.appendChild(div);				
+		
+		/*var textField=document.createElement("iframe");
+		textField.name="textField"+i;
+		textField.id="text"+i;
+		//textField.addEventListener("pointerdown",infoLoaded);
+		//textField.onload=infoLoaded;
+		textFrame.appendChild(textField);*/
+	
+		var button = document.createElement("button");
+		button.innerHTML="minimize";
+		button.style.opacity = "0";
+		button.id="b"+i;
+		div.appendChild(button);
+		button.addEventListener("pointerdown",buttonClicked);
+		
+		var p=document.createElement("p");	
+		p.innerHTML=infos[i][1];
+		p.id="p"+i;
+		div.appendChild(p);	
+		//p.addEventListener("pointerdown",clicked);
+			
+		var info = document.createElement("a");
+		info.id="info"+i;
+		info.num=i;
+		info.target="textField"+i;
+		info.target="texte";
+		info.innerHTML="Info";
+		info.href=infos[i][3];
+		//info.addEventListener("pointerdown",infoClicked);
+		info.onload=infoLoaded;
+		div.appendChild(info);
+		
+		var a = document.createElement("a");	
+		a.id="a"+i;
+		a.num=i;
+		a.target="imgFrame";
+		a.innerHTML="<br>Image";
+		a.href=infos[i][2];
+		//a.addEventListener("pointerdown",linkClicked);
+		div.appendChild(a);
+		console.log(a.href.width);
+		
+		items.add([
+		  {id: i, content: div, start: infos[i][0]}
+		]);		
+	}
+	function myClick(){
+		console.log("myClick!");
+	}
+	function linkClicked(){
+		window.open(this.href,'name','width=600,height=400')
+		//var c = visualization.children;
+		//var content = imgFrame.contentWindow.document.body.children[0];
+		console.log("linkClicked ");
+	}
+	//var item3 = document.getElementById('div_1');
+	
+  // create data and a Timeline
+  
+
+  // Configuration for the Timeline
+    var options = {
+    height: time.clientHeight*0.9+"px",
+	stack: false,
+    width: time.clientWidth,
+    min: new Date(2002, 0, 1),                // lower limit of visible range
+    max: new Date(2016, 6, 11),             // upper limit of visible range
+  };
+  // Create a Timeline
+  var tmpList = items.get();  
+  
+  var timeline = new vis.Timeline(time, items, options);
+  function clicked(){
+	console.log("clicked " ,this.id.substring(1,2));
+		var search="b"+this.id.substring(1,2);
+		var tmpButton=document.getElementById(search);
+		tmpButton.style.opacity = "1";
+	this.innerHTML=infos[this.id.substring(1,2)][4];
+	//items.update({id:3, content: div});
+	//d3.select(this).attr("transform", "translate(80,0)");
+	//TweenMax.to(this,1,{scale:"2",transformOrigin:"50% 50%"});
+  }
+  function buttonClicked(){
+	console.log("clicked " ,this.id.substring(1,2));
+	var tmp=document.getElementById("p"+this.id.substring(1,2));
+	tmp.innerHTML=infos[this.id.substring(1,2)][1];
+	this.style.opacity = "0";
+	//items.update({id:3, content: div});
+	//d3.select(this).attr("transform", "translate(80,0)");
+	//TweenMax.to(this,1,{scale:"2",transformOrigin:"50% 50%"});
+  }
+  function infoLoaded(){
+	console.log("loaded");
+	for (i=0;i<infos.length;i++){
+		try{
+			var t=document.getElementById("text"+i);
+			t.style.backgroundColor = "#CEECF5";
+		}
+		catch(e){
+			console.log("Info not existing");
+		}
+	}
+	var index=this.id.substring(4,5);
+	var tmpTextfield=document.getElementById("text"+index);
+	var content=tmpTextfield.contentWindow.document.body.innerHTML;
+	if(content!="")tmpTextfield.style.backgroundColor = "#F2F5A9";
+  }
+  function infoClicked(){  
+	var index=this.id.substring(4,5);
+	var id="text"+index;
+	var test=document.getElementById(id);
+	//output.innerHTML="Clicked "+id;	
+	if(test==null){	
+		var textField=document.createElement("iframe");
+		textField.name="textField"+index;
+		textField.id=id;
+		textField.style.width="200px";
+		textField.style.width="580px";
+		//textField.addEventListener("pointerdown",infoLoaded);
+		textField.onload=infoLoaded;
+		textFrame.appendChild(textField);
+	}
+	textFrame.scrollTop = index*200; 
+  }
+	//timeline.on('rangechange',change);
+	//document.addEventListener('pointermove',pMove);
+	function pMove(){
+		//var item=tmpList[0];
+		//var rect=item.content.getBoundingClientRect();
+		console.log(event.type);
+	}
+	function change(){
+		//var item=tmpList[0];
+		//var rect=item.content.getBoundingClientRect();
+		console.log(event);
+	}
+	/*function selectItem(){
+		var item = tmpList[this.getSelection()[0]];
+		var rect = tmpList[this.getSelection()[0]].content.getBoundingClientRect();
+		var left = rect.left + rect.width * 0.5;
+		var top = rect.top;
+		for(i=0; i<item.content.children.length;i++){		
+			if(item.content.children[i].href!=null)console.log(item.content.children[i].href);
+		}
+	};*/
+	/*timeline.on('select',selectItem);
+	function selectItem(){
+		var item = tmpList[this.getSelection()[0]];
+		if(item!=null)console.log(item);
+	}*/
+	/*var array = [];
+	
+	document.onload=getStart;
+	function getStart(){
+		var links = document.getElementsByTagName("a");
+		for(var i=0; i<links.length; i++) {
+			array.push(links[i].href);
+		}
+	}
+	console.log(array);*/
+</script>
+</body>
+</html>
